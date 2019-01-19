@@ -76,12 +76,16 @@ def main():
     #google play store id rfc822msgid:a685cf0371b7dafc083015faa60953cc0d0ac6fd-10044049-100240651@google.com
     #amazon id1 'rfc822msgid:01020168438850f4-ffad1b13-6154-4f65-8e71-7c18b615503f-000000@eu-west-1.amazonses.com
     #amazon id2 rfc822msgid:010201677e7bbc72-42a07a16-9e03-476e-80ca-8bb3dda11a86-000000@eu-west-1.amazonses.com
+    #<<<<<<< HEAD
     query = 'rfc822msgid:010201674ad0d8b8-176540b3-4e00-4e97-bd1c-4983ae119a14-000000@eu-west-1.amazonses.com'
     message_id = get_email_id_by_query(service, query)
     z = get_email_by_id(service, message_id)
     print(get_matching_emails(service, "2019/01/20", "2019/01/01", "Monzo"))
-
-    #print(z)
+    #=======
+    #amazon id3 rfc822msgid:01020163186f0a90-7644ce96-1906-4565-9ee6-60115b6c96e3-000000@eu-west-1.amazonses.com
+    #query = 'rfc822msgid:01020163186f0a90-7644ce96-1906-4565-9ee6-60115b6c96e3-000000@eu-west-1.amazonses.com'
+    
+        #print(z)
     #print(z.keys())
     #print(z["payload"].keys())
     #print(z["payload"]["headers"])
