@@ -37,7 +37,11 @@ def main():
     service = build('gmail', 'v1', credentials=creds)
 
     # Call the Gmail API
-    query = 'rfc822msgid:01020168438850f4-ffad1b13-6154-4f65-8e71-7c18b615503f-000000@eu-west-1.amazonses.com'
+    #gbk id rfc822msgid:0100016533703b3a-1f3aebdc-db03-40c4-859c-3014bd1efa51-000000@email.amazonses.com
+    #google play store id rfc822msgid:a685cf0371b7dafc083015faa60953cc0d0ac6fd-10044049-100240651@google.com
+    #amazon id1 'rfc822msgid:01020168438850f4-ffad1b13-6154-4f65-8e71-7c18b615503f-000000@eu-west-1.amazonses.com
+    #amazon id2 rfc822msgid:010201677e7bbc72-42a07a16-9e03-476e-80ca-8bb3dda11a86-000000@eu-west-1.amazonses.com
+    query = 'rfc822msgid:010201677e7bbc72-42a07a16-9e03-476e-80ca-8bb3dda11a86-000000@eu-west-1.amazonses.com'
     
     response = service.users().messages().list(userId='me', q=query).execute()
     messages = []
@@ -62,6 +66,7 @@ def main():
         h.ignore_links = True
         h.ignore_images = True
         h.ignore_tables = True
+        h.ignore_emphasis = True
         print(h.handle(str(html)))
         
 
