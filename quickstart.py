@@ -59,11 +59,11 @@ def main():
 
     results = service.users().labels().list(userId='me').execute()
     labels = results.get('labels', [])
-    message = service.users().messages().get(userId='me', id='168578da55a1036c', format='full').execute()
+    #message = service.users().messages().get(userId='me', id='168578da55a1036c', format='full').execute()
 
     #msg_str = base64.urlsafe_b64decode(message['data'].encode('ASCII'))
-    payload = message['payload']['parts'][1]['body']['data']
-    print(base64.urlsafe_b64decode(payload))
+    #payload = message['payload']['parts'][1]['body']['data']
+    #print(base64.urlsafe_b64decode(payload))
     
     if not labels:
         print('No labels found.')
