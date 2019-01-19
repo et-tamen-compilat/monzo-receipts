@@ -1,9 +1,11 @@
 from __future__ import print_function
 import pickle
 import os.path
+import base64
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+import html2text
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
@@ -34,6 +36,26 @@ def main():
     service = build('gmail', 'v1', credentials=creds)
 
     # Call the Gmail API
+    z = service.users().messages().get(userId='me', id='16866abdddd4b5c0').execute()
+  
+    print(z)
+    print(z.keys())
+    print(z["payload"].keys())
+    print(z["payload"]['parts'][0])
+    for x in z["payload"]['parts']:
+      print(x['mimeType'])
+      if (x['mimeType'] == 'text/html'):
+        html = base64.urlsafe_b64decode(x['body']['data'])
+        #soup = BeautifulSoup(html, features="html.parser")
+        #for script in soup(["script", "style"]):
+            #script.extract()    # rip it out
+        h = html2text.HTML2Text()
+        h.ignore_links = True
+        h.ignore_images = True
+        h.ignore_tables = True
+        print(h.handle(str(html)))
+        
+
     results = service.users().labels().list(userId='me').execute()
     labels = results.get('labels', [])
 
@@ -42,7 +64,8 @@ def main():
     else:
         print('Labels:')
         for label in labels:
-            print(label['name'])
+            pass
+            #print(label['name'])
 
 if __name__ == '__main__':
     main()
