@@ -37,7 +37,15 @@ def main():
     # Call the Gmail API
     results = service.users().labels().list(userId='me').execute()
     labels = results.get('labels', [])
-    message = service.users().messages().get(userId='me', id='168578da55a1036c', format='full').execute()
+
+    query = 'rfc822msgid:01020168438850f4-ffad1b13-6154-4f65-8e71-7c18b615503f-000000@eu-west-1.amazonses.com'
+    
+    response = service.users().messages().list(userId='me', q=query).execute()
+    messages = []
+    if 'messages' in response:
+      messages.extend(response['messages'])
+    message_id = messages[0]['id']
+    message = service.users().messages().get(userId='me', id=message_id, format='full').execute()
 
     payload = message['payload']['parts'][1]['body']['data']
     print(base64.urlsafe_b64decode(payload))
