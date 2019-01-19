@@ -1,1 +1,1 @@
-# monzo_receipts
+# monzo-receipts
