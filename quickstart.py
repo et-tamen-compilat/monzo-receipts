@@ -15,7 +15,8 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 #master_regex = r"([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)(\n?:Sold by[a-zA-Z\ &\d\(\)\.:]+)?[\ \n\r]*£?(\d+\.\d{2})\D"
 #master_regex = r"([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)[\ \n\r]+£?(\d+\.\d{2})\D"
-master_regex = r"([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)(\n?Sold by[a-zA-Z\ &\d\(\)\.:]+)?[\ \n\r]*£?(\d+\.\d{2})\D"
+#master_regex = r"([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)(\n?Sold by[a-zA-Z\ &\d\(\)\.:]+)?[\ \n\r]*£?(\d+\.\d{2})\D"
+master_regex = r"(\||\*|^)([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)(\n[a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)*[\ \n\r]*\|[\ \n\r]*-?£?(\d+\.\d{2})\D"
 
 def get_matching_emails(service, before, after, subject):
     q = "before:{before} after:{after} subject:{subject}".format(before=before, after=after, subject=subject)
@@ -29,7 +30,7 @@ def convert_to_plain_text(email):
             h = html2text.HTML2Text()
             h.ignore_links = True
             h.ignore_images = True
-            h.ignore_tables = True
+            #h.ignore_tables = True
             h.ignore_emphasis = True
             return h.handle(html.decode('UTF-8'))
 
@@ -77,7 +78,7 @@ def main():
     #amazon id1 'rfc822msgid:01020168438850f4-ffad1b13-6154-4f65-8e71-7c18b615503f-000000@eu-west-1.amazonses.com
     #amazon id2 rfc822msgid:010201677e7bbc72-42a07a16-9e03-476e-80ca-8bb3dda11a86-000000@eu-west-1.amazonses.com
     #<<<<<<< HEAD
-    query = 'rfc822msgid:010201674ad0d8b8-176540b3-4e00-4e97-bd1c-4983ae119a14-000000@eu-west-1.amazonses.com'
+    query = 'rfc822msgid:1225807702.31204847.1545384334683.JavaMail.email@email.apple.com'
     message_id = get_email_id_by_query(service, query)
     z = get_email_by_id(service, message_id)
     print(get_matching_emails(service, "2019/01/20", "2019/01/01", "Monzo"))
