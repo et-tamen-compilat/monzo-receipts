@@ -1,4 +1,5 @@
 import requests
+import time
 # If you are using a Jupyter notebook, uncomment the following line.
 #%matplotlib inline
 #import matplotlib.pyplot as plt
@@ -28,37 +29,62 @@ assert subscription_key
 
 vision_base_url = "https://westcentralus.api.cognitive.microsoft.com/vision/v2.0/"
 ocr_url = vision_base_url + "ocr"
-
+handwritten_url = vision_base_url + "recognizeText"
 headers = {'Ocp-Apim-Subscription-Key': subscription_key}
 params  = {'language': 'unk', 'detectOrientation': 'true'}
-#data    = {'url': image_url}
-#response = requests.post(ocr_url, headers=headers, params=params, json=data)
-#response.raise_for_status()
-#analysis = response.json()
-
 image_path = "C:/Users/HugoMayo/Downloads/restaurantreceipt.jpg"
-
 image_data = open(image_path, "rb").read()
 headers    = {'Ocp-Apim-Subscription-Key': subscription_key,
-              'Content-Type': 'application/octet-stream'}
-params     = {'visualFeatures': 'Categories,Description,Color'}
-response = requests.post(
-    ocr_url, headers=headers, params=params, data=image_data)
-response.raise_for_status()
+                  'Content-Type': 'application/octet-stream'}
+                  
+handwritten = False
+if not handwritten:
+    params     = {'visualFeatures': 'Categories,Description,Color'}
+    response = requests.post(ocr_url, headers=headers, params=params, data=image_data)
+    response.raise_for_status()
+    analysis = response.json()  
 
+   # Extract the word bounding boxes and text.
+    line_infos = [region["lines"] for region in analysis["regions"]]
+    index = 0
+    all_words = [[]]
+    for line_info in line_infos:
+        for line in line_info:
+            all_words.append([])
+            for word in line['words']:
+                all_words[index].append(word['text'])
+            index += 1
+    print(all_words)
+else:
+    params = {'mode' : 'Handwritten'}
+    response = requests.post(
+        handwritten_url, headers=headers, params=params, data=image_data)
+    response.raise_for_status()
+    
 
-analysis = response.json()
+    operation_url = response.headers["Operation-Location"]
 
-# Extract the word bounding boxes and text.
-line_infos = [region["lines"] for region in analysis["regions"]]
-index = 0
-all_words = [[]]
-for line_info in line_infos:
-    for line in line_info:
-        all_words.append([])
-        for word in line['words']:
-            all_words[index].append(word['text'])
-        index += 1
-# Display the image and overlay it with the extracted text.
+    # The recognized text isn't immediately available, so poll to wait for completion.
+    analysis = {}
+    poll = True
+    while (poll):
+        response_final = requests.get(
+            response.headers["Operation-Location"], headers=headers)
+        analysis = response_final.json()
+        time.sleep(1)
+        if ("recognitionResult" in analysis):
+            poll= False 
+        if ("status" in analysis and analysis['status'] == 'Failed'):
+            poll= False
 
-print(all_words)
+    polygons=[]
+    if ("recognitionResult" in analysis):
+        # Extract the recognized text, with bounding boxes.
+        polygons = [(line["boundingBox"], line["text"])
+            for line in analysis["recognitionResult"]["lines"]]
+    print(polygons)
+    text = []
+    for line in polygons:
+        text.append(line[1])
+    print(text)
+
