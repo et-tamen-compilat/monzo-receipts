@@ -17,22 +17,35 @@ assert subscription_key
 # Free trial subscription keys are generated in the "westus" region.
 # If you use a free trial subscription key, you shouldn't need to change
 # this region.
-vision_base_url = "https://westcentralus.api.cognitive.microsoft.com/vision/v2.0/"
 
-ocr_url = vision_base_url + "ocr"
 
 # Set image_url to the URL of an image that you want to analyze.
-restaurant_one = "https://media-cdn.tripadvisor.com/media/photo-s/10/e8/f0/ac/receipt.jpg"
-restaurant_two = "https://media-cdn.tripadvisor.com/media/photo-s/03/63/af/02/george-s-italian-restaurant.jpg?fbclid=IwAR1zBKPmZLW-q0CPot9oRL8tkQ81srgEBz-NYWdydXnCJAXG7J3NVByghO4"
-restaurant_three = "https://scontent-lht6-1.xx.fbcdn.net/v/t1.15752-9/49368778_377540766157610_2943868939429478400_n.jpg?_nc_cat=105&_nc_ht=scontent-lht6-1.xx&oh=bd9502cd48398e9b9a7cda71825fd112&oe=5CD04606"
-bar_receipt = "https://www.latimes.com/resizer/icwsRMTiP_WDz5RvchwQGDCDKHY=/1200x0/www.trbimg.com/img-561c0d46/turbine/la-sp-sarkisian-alcohol-receipts-20151012?fbclid=IwAR1soFOkwaz03TCFHg8OVj6P_a20zUyUcBxCcvrdXsri-rvoPWZNtSDa590"
-image_url = restaurant_three
+#restaurant_one = "https://media-cdn.tripadvisor.com/media/photo-s/10/e8/f0/ac/receipt.jpg"
+#restaurant_two = "https://media-cdn.tripadvisor.com/media/photo-s/03/63/af/02/george-s-italian-restaurant.jpg?fbclid=IwAR1zBKPmZLW-q0CPot9oRL8tkQ81srgEBz-NYWdydXnCJAXG7J3NVByghO4"
+#restaurant_three = "https://scontent-lht6-1.xx.fbcdn.net/v/t1.15752-9/49368778_377540766157610_2943868939429478400_n.jpg?_nc_cat=105&_nc_ht=scontent-lht6-1.xx&oh=bd9502cd48398e9b9a7cda71825fd112&oe=5CD04606"
+#bar_receipt = "https://www.latimes.com/resizer/icwsRMTiP_WDz5RvchwQGDCDKHY=/1200x0/www.trbimg.com/img-561c0d46/turbine/la-sp-sarkisian-alcohol-receipts-20151012?fbclid=IwAR1soFOkwaz03TCFHg8OVj6P_a20zUyUcBxCcvrdXsri-rvoPWZNtSDa590"
+#image_url = restaurant_one
+
+vision_base_url = "https://westcentralus.api.cognitive.microsoft.com/vision/v2.0/"
+ocr_url = vision_base_url + "ocr"
 
 headers = {'Ocp-Apim-Subscription-Key': subscription_key}
 params  = {'language': 'unk', 'detectOrientation': 'true'}
-data    = {'url': image_url}
-response = requests.post(ocr_url, headers=headers, params=params, json=data)
+#data    = {'url': image_url}
+#response = requests.post(ocr_url, headers=headers, params=params, json=data)
+#response.raise_for_status()
+#analysis = response.json()
+
+image_path = "C:/Users/HugoMayo/Downloads/restaurantreceipt.jpg"
+
+image_data = open(image_path, "rb").read()
+headers    = {'Ocp-Apim-Subscription-Key': subscription_key,
+              'Content-Type': 'application/octet-stream'}
+params     = {'visualFeatures': 'Categories,Description,Color'}
+response = requests.post(
+    ocr_url, headers=headers, params=params, data=image_data)
 response.raise_for_status()
+
 
 analysis = response.json()
 
