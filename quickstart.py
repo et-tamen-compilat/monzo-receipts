@@ -106,9 +106,10 @@ def main():
     google_play_id2 = 'rfc822msgid:5f665b9f0fdc8072.1532187432836.100240651.10044049.en-GB.589fc1be1ae4f1e4@google.com'
     google_play_id3 = 'rfc822msgid:5f665b9f0fdc8072.1523093171606.100240651.10044049.en-GB.45840e70707e3b8@google.com'
     google_play_id4 = 'rfc822msgid:000000000000c207b805789c8ce7@google.com'
-    ic_union_id = 'rfc822msgid:4CF32457-8798-45D6-AB75-1013CF636BEF@ic.ac.uk'
+    deliveroo_id1 = 'rfc822msgid:5afc7a1e51293_183fddfc3ec8d4273690@4320d7536864.mail'
+    deliveroo_id2 = 'rfc822msgid:5babb9e861414_143fe11e20019049511e@5346a9355ef5.mail'
     #<<<<<<< HEAD
-    query = google_play_id4
+    query = deliveroo_id2
 
     message_id = get_email_id_by_query(service, query)
     z = get_email_by_id(service, message_id)
