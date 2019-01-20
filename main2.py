@@ -8,7 +8,7 @@ import oauth2
 import receipt_types
 from utils import error
 from quickstart import get_matching_emails, convert_to_plain_text, get_email_by_id, get_data, get_service
-import dateutil.parser
+'''import dateutil.parser'''
 
 class ReceiptsClient:
     ''' An example single-account client of the Monzo Transaction Receipts API. 
