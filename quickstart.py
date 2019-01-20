@@ -50,6 +50,25 @@ def get_email_by_id(service, message_id):
 def get_date(email):
     return datetime.utcfromtimestamp(int(email["internalDate"]) / 1000)
 
+def get_data(data):
+    for k in re.findall(master_regex, data, re.MULTILINE):
+        print(k)
+    reading_items = True
+    final_data = []
+    for k in re.findall(master_regex, data, re.MULTILINE):
+        desc = k[0].rstrip()
+        price = int(float(k[2]) * 100)
+        if "Item Subtotal:" in desc or "Total" in desc:
+            reading_items = False
+        elif  'VAT' in desc and 'Total' not in desc:
+            final_data.append(('VAT', price))
+        elif "Postage" in desc and price > 0:
+            final_data.append(('Postage & Packing', price))
+        elif desc and "Postage & Packing:" not in desc and reading_items:
+            quantity = 1
+            final_data.append((desc, quantity, price))   
+    return final_data
+ 
 def main():
     """Shows basic usage of the Gmail API.
     Lists the user's Gmail labels.
@@ -107,26 +126,11 @@ def main():
 
     print("---****---")
 
-    for k in re.findall(master_regex, data, re.MULTILINE):
-        print(k)
-    reading_items = True
-    final_data = []
-    for k in re.findall(master_regex, data, re.MULTILINE):
-        desc = k[0].rstrip()
-        price = int(float(k[2]) * 100)
-        if "Item Subtotal:" in desc or "Total" in desc:
-            reading_items = False
-        elif  'VAT' in desc and 'Total' not in desc:
-            final_data.append(('VAT', price))
-        elif "Postage" in desc and price > 0:
-            final_data.append(('Postage & Packing', price))
-        elif desc and "Postage & Packing:" not in desc and reading_items:
-            quantity = 1
-            final_data.append((desc, quantity, price))   
-    print(final_data)
+    print(get_data(data))
+
     results = service.users().labels().list(userId='me').execute()
     labels = results.get('labels', [])
-    
+   
     if not labels:
         print('No labels found.')
     else:
