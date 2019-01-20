@@ -7,8 +7,10 @@ import sqlite3
 from lib import ReceiptsClient
 app = Flask(__name__)
 import dateutil.parser
+from werkzeug.utils import secure_filename
 
 app.config['SECRET_KEY'] = 'adsfjhdskljfhadklsjhfkljasdhfl'
+app.config['UPLOAD_FOLDER'] = 'upload'
 
 def process(x):
     return {"name": x["merchant"]["name"] if x["merchant"] != None else "Unknown" , "amount": x["amount"], "date": x["created"], "id": x["id"]}
@@ -38,8 +40,8 @@ def hello():
 def hello3(transaction_id):
     if "id" in session:
         l = ReceiptsClient(session["access_token"])
-        l.doit(transaction_id)
-        return "Success"
+        result = l.doit(transaction_id)
+        return "Success: " + str(result)
     else:    
         return "Authentication failed"
 
@@ -58,4 +60,13 @@ def hello2():
     session['access_token'] = json_data["access_token"]
     return "Authentication successful"
 
+@app.route('/', methods=['GET', 'POST'])
+@app.route("/upload/<transaction_id>")
+def upload_file():
+    if 'file' not in request.files:
+        return "no file part"
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file"
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 

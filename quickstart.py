@@ -66,13 +66,13 @@ def get_data(data):
         elif  'VAT' in desc and 'Total' not in desc:
             vat = price
         elif "Postage" in desc and price > 0:
-            final_data.append(('Postage & Packing', price))
+            final_data.append(('Postage & Packing', 1, price))
         elif desc and "Postage & Packing:" not in desc and reading_items:
             quantity = 1
             final_data.append((desc, quantity, price))   
             total += price
         elif 'gift card' in desc.lower() or 'promotion' in desc.lower():
-            final_data.append(('Discount Applied', -abs(price)))
+            final_data.append(('Discount Applied', 1, -abs(price)))
             total -= abs(price)
     return (final_data, vat, total)
 
