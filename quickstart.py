@@ -72,6 +72,7 @@ def get_data(data):
             final_data.append((desc, quantity, price))   
             total += price
         elif desc == 'Gift Card (':
+            final_data.append(('Discount Applied', price))
             total -= price
     return (final_data, vat, total)
 
@@ -119,7 +120,7 @@ def main():
     deliveroo_id1 = 'rfc822msgid:5afc7a1e51293_183fddfc3ec8d4273690@4320d7536864.mail'
     deliveroo_id2 = 'rfc822msgid:5babb9e861414_143fe11e20019049511e@5346a9355ef5.mail'
     #<<<<<<< HEAD
-    query = amazon_id1
+    query = amazon_id6_giftcard
 
     message_id = get_email_id_by_query(service, query)
     z = get_email_by_id(service, message_id)
