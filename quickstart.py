@@ -86,8 +86,10 @@ def main():
     google_play_id1 = 'rfc822msgid:a685cf0371b7dafc083015faa60953cc0d0ac6fd-10044049-100240651@google.com'
     google_play_id2 = 'rfc822msgid:5f665b9f0fdc8072.1532187432836.100240651.10044049.en-GB.589fc1be1ae4f1e4@google.com'
     google_play_id3 = 'rfc822msgid:5f665b9f0fdc8072.1523093171606.100240651.10044049.en-GB.45840e70707e3b8@google.com'
+    google_play_id4 = 'rfc822msgid:000000000000c207b805789c8ce7@google.com'
+    ic_union_id = 'rfc822msgid:4CF32457-8798-45D6-AB75-1013CF636BEF@ic.ac.uk'
     #<<<<<<< HEAD
-    query = amazon_id5
+    query = google_play_id4
 
     message_id = get_email_id_by_query(service, query)
     z = get_email_by_id(service, message_id)
@@ -115,7 +117,7 @@ def main():
         if "Item Subtotal:" in desc or "Total" in desc:
             reading_items = False
         elif  'VAT' in desc and 'Total' not in desc:
-            final_data.append('VAT', price)
+            final_data.append(('VAT', price))
         elif "Postage" in desc and price > 0:
             final_data.append(('Postage & Packing', price))
         elif desc and "Postage & Packing:" not in desc and reading_items:
