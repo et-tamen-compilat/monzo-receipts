@@ -16,7 +16,10 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 #master_regex = r"([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)(\n?:Sold by[a-zA-Z\ &\d\(\)\.:]+)?[\ \n\r]*£?(\d+\.\d{2})\D"
 #master_regex = r"([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)[\ \n\r]+£?(\d+\.\d{2})\D"
 #master_regex = r"([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)(\n?Sold by[a-zA-Z\ &\d\(\)\.:]+)?[\ \n\r]*£?(\d+\.\d{2})\D"
-master_regex = r"(\||\*|^)([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)(\n[a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)*[\ \n\r]*\|[\ \n\r]*-?£?(\d+\.\d{2})\D"
+#master_regex = r"(\||\*|^)([a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)(\n[a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)*[\ \n\r\|\-]*-?£?(\d+\.\d{2})\D"
+#master_regex = r"([a-zA-Z][a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)(\n[a-zA-Z\ &\d\(\)\.:\]\[\-\,]+)*[\|\-\ \n\r]*-?£?(\d+\.\d{2})\D"
+#master_regex = r"([a-zA-ZÀ-ú][a-zA-ZÀ-ú\ &\d\(\)\.:\]\[\-\,]+)((?:\n)[a-zA-ZÀ-ú\ &\d\(\)\.:\]\[\-\,]+)*[\|\-\ \n\r]*-?£?(\d+\.\d{2})\D"
+master_regex = r"([a-zA-ZÀ-ú®\'\"][a-zA-ZÀ-ú®\'\"\ &\d\(\)\.:\]\[\-\,]+)((?:\n)[a-zA-ZÀ-ú®\'\"\ &\d\(\)\.:\]\[\-\,]+)*[\|\-\ \n\r]*-?£?(\d+\.\d{2})\D"
 
 def get_matching_emails(service, before, after, subject):
     q = "before:{before} after:{after} subject:{subject}".format(before=before, after=after, subject=subject)
@@ -74,18 +77,22 @@ def main():
 
     # Call the Gmail API
     #gbk id rfc822msgid:0100016533703b3a-1f3aebdc-db03-40c4-859c-3014bd1efa51-000000@email.amazonses.com
-    #google play store id rfc822msgid:a685cf0371b7dafc083015faa60953cc0d0ac6fd-10044049-100240651@google.com
-    #amazon id1 'rfc822msgid:01020168438850f4-ffad1b13-6154-4f65-8e71-7c18b615503f-000000@eu-west-1.amazonses.com
-    #amazon id2 rfc822msgid:010201677e7bbc72-42a07a16-9e03-476e-80ca-8bb3dda11a86-000000@eu-west-1.amazonses.com
+    #google play store id 
+    amazon_id1 = 'rfc822msgid:01020168438850f4-ffad1b13-6154-4f65-8e71-7c18b615503f-000000@eu-west-1.amazonses.com'
+    amazon_id2 = 'rfc822msgid:010201677e7bbc72-42a07a16-9e03-476e-80ca-8bb3dda11a86-000000@eu-west-1.amazonses.com'
+    amazon_id3 = 'rfc822msgid:01020163186f0a90-7644ce96-1906-4565-9ee6-60115b6c96e3-000000@eu-west-1.amazonses.com'
+    amazon_id4 = 'rfc822msgid:0102016622edbdf6-d0e91758-ec90-43a9-bea1-d0e05faeac1e-000000@eu-west-1.amazonses.com'
+    amazon_id5 = 'rfc822msgid:0102016030c68d3b-ec689bf9-2fc9-4883-8ffa-206f1f893375-000000@eu-west-1.amazonses.com'
+    google_play_id1 = 'rfc822msgid:a685cf0371b7dafc083015faa60953cc0d0ac6fd-10044049-100240651@google.com'
+    google_play_id2 = 'rfc822msgid:5f665b9f0fdc8072.1532187432836.100240651.10044049.en-GB.589fc1be1ae4f1e4@google.com'
+    google_play_id3 = 'rfc822msgid:5f665b9f0fdc8072.1523093171606.100240651.10044049.en-GB.45840e70707e3b8@google.com'
     #<<<<<<< HEAD
-    query = 'rfc822msgid:01020163186f0a90-7644ce96-1906-4565-9ee6-60115b6c96e3-000000@eu-west-1.amazonses.com'
+    query = amazon_id5
 
     message_id = get_email_id_by_query(service, query)
     z = get_email_by_id(service, message_id)
     print(get_matching_emails(service, "2019/01/20", "2019/01/01", "Monzo"))
     #=======
-    #amazon id3 rfc822msgid:01020163186f0a90-7644ce96-1906-4565-9ee6-60115b6c96e3-000000@eu-west-1.amazonses.com
-    #query = 'rfc822msgid:01020163186f0a90-7644ce96-1906-4565-9ee6-60115b6c96e3-000000@eu-west-1.amazonses.com'
     
         #print(z)
     #print(z.keys())
@@ -103,16 +110,17 @@ def main():
     reading_items = True
     final_data = []
     for k in re.findall(master_regex, data, re.MULTILINE):
-        if ("Subtotal" in k[0]):
+        desc = k[0].rstrip()
+        price = int(float(k[2]) * 100)
+        if "Item Subtotal:" in desc or "Total" in desc:
             reading_items = False
-        if reading_items:
-            item_name = k[0]
+        elif  'VAT' in desc and 'Total' not in desc:
+            final_data.append('VAT', price)
+        elif "Postage" in desc and price > 0:
+            final_data.append(('Postage & Packing', price))
+        elif desc and "Postage & Packing:" not in desc and reading_items:
             quantity = 1
-            price = float(k[2])
-            final_data.append((item_name, quantity, int(price * 100)))
-        if ("VAT" in k[0] and "Total" not in k[0]):
-            price = float(k[2])
-            final_data.append(('VAT', int(price*100)))
+            final_data.append((desc, quantity, price))   
     print(final_data)
     results = service.users().labels().list(userId='me').execute()
     labels = results.get('labels', [])
