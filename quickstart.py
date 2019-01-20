@@ -27,6 +27,7 @@ def get_matching_emails(service, before, after, subject):
     return list(map(lambda x: x["id"], response["messages"]))
 
 def convert_to_plain_text(email):
+    print(email["payload"].keys())
     for x in email["payload"]["parts"]:
         if (x["mimeType"] == "text/html"):
             html = base64.urlsafe_b64decode(x["body"]["data"])
@@ -52,27 +53,27 @@ def get_date(email):
 
 def get_data(data):
     for k in re.findall(master_regex, data, re.MULTILINE):
-        print(k)
+        pass#print(k)
     reading_items = True
     final_data = []
+    vat = 0
+    total = 0
     for k in re.findall(master_regex, data, re.MULTILINE):
         desc = k[0].rstrip()
         price = int(float(k[2]) * 100)
         if "Item Subtotal:" in desc or "Total" in desc:
             reading_items = False
         elif  'VAT' in desc and 'Total' not in desc:
-            final_data.append(('VAT', price))
+            vat = price
         elif "Postage" in desc and price > 0:
             final_data.append(('Postage & Packing', price))
         elif desc and "Postage & Packing:" not in desc and reading_items:
             quantity = 1
             final_data.append((desc, quantity, price))   
-    return final_data
- 
-def main():
-    """Shows basic usage of the Gmail API.
-    Lists the user's Gmail labels.
-    """
+            total += price
+    return (final_data, vat, total)
+
+def get_service():
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -92,8 +93,14 @@ def main():
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
-    service = build('gmail', 'v1', credentials=creds)
+    return build('gmail', 'v1', credentials=creds)
 
+def main():
+    """Shows basic usage of the Gmail API.
+    Lists the user's Gmail labels.
+    """
+    service = get_service()
+    
     # Call the Gmail API
     #gbk id rfc822msgid:0100016533703b3a-1f3aebdc-db03-40c4-859c-3014bd1efa51-000000@email.amazonses.com
     #google play store id 
@@ -111,8 +118,8 @@ def main():
     #<<<<<<< HEAD
     query = deliveroo_id2
 
-    message_id = get_email_id_by_query(service, query)
-    z = get_email_by_id(service, message_id)
+    #message_id = get_email_id_by_query(service, query)
+    z = get_email_by_id(service, "16742967640a3464")
     print(get_matching_emails(service, "2019/01/20", "2019/01/01", "Monzo"))
     #=======
     

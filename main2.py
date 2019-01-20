@@ -7,6 +7,8 @@ import config
 import oauth2
 import receipt_types
 from utils import error
+from quickstart import get_matching_emails, convert_to_plain_text, get_email_by_id, get_data, get_service
+import dateutil.parser
 
 class ReceiptsClient:
     ''' An example single-account client of the Monzo Transaction Receipts API. 
@@ -64,7 +66,7 @@ class ReceiptsClient:
         # Our call is not paginated here with e.g. "limit": 10, which will be slow for
         # accounts with a lot of transactions.
         success, response = self._api_client.api_get("transactions", {
-            "account_id": self._account_id, "limit": limit, "since": since, 
+            "account_id": self._account_id, "limit": limit, "since": since, "expand[]": "merchant"
         })
 
         if not success or "transactions" not in response:
@@ -73,12 +75,36 @@ class ReceiptsClient:
         self.transactions = response["transactions"]
         print(limit, " transactions loaded from ", since)
 
-        for t in self.transactions:
-            print(t["id"])
+        #for t in self.transactions:
+        #    print(t["id"])
 
-        return self.transactions[-2]
+        return self.transactions#[-2]
         
+    def get_transaction(self, id):
+        ''' An example call to the end point documented in
+            https://docs.monzo.com/#list-transactions, other requests 
+            can be implemented in a similar fashion. 
+        '''
+        if self._api_client is None or not self._api_client_ready:
+            error("API client not initialised.")
 
+        # Our call is not paginated here with e.g. "limit": 10, which will be slow for
+        # accounts with a lot of transactions.
+        success, response = self._api_client.api_get("transactions/" + id, {
+            "account_id": self._account_id, "expand[]": "merchant"
+        })
+
+        if not success or "transaction" not in response:
+            error("Could not list past transactions ({})".format(response))
+        
+        #self.transactions = response["transactions"]
+        #print(limit, " transactions loaded from ", since)
+
+        #for t in self.transactions:
+        #    print(t["id"])
+
+        return response["transaction"]#self.transactions[-2]
+ 
     def read_receipt(self, receipt_id):
         ''' Retrieve receipt for a transaction with an external ID of our choosing.
         '''
@@ -98,7 +124,7 @@ class ReceiptsClient:
             if you need to. 
         '''
 
-        transaction_id = self.transactions[-2]
+        #transaction_id = self.transactions[-2]
         print("Using most recent transaction to attach receipt: {}".format(transaction_id))
 
         # Using a random receipt ID we generate as external ID
@@ -106,11 +132,11 @@ class ReceiptsClient:
        
         items = []
         for i in data_in:
-            items.append(receipt_types.Item(i[0], i[1], i[2], i[3], currency, i[4], []))
+            items.append(receipt_types.Item(i[0], i[1], "", i[2], currency, 0, []))
 
-        payments = [receipt_types.Payment(payment_type, "", "", "", "", "", "", "", abs(transaction_id["amount"]), currency )]
+        payments = [receipt_types.Payment(payment_type, "", "", "", "", "", "", "", amount, currency )]
         taxes = [receipt_types.Tax("VAT", vat_amount, currency, "12345678" )]
-        receipt = receipt_types.Receipt("", receipt_id, transaction_id["id"], abs(transaction_id["amount"]), currency, payments, taxes, items)
+        receipt = receipt_types.Receipt("", receipt_id, transaction_id, amount, currency, payments, taxes, items)
         receipt_marshaled = receipt.marshal()        
         
         print("Uploading receipt data to API: ", json.dumps(receipt_marshaled, indent=4, sort_keys=True))
@@ -156,11 +182,28 @@ class ReceiptsClient:
 if __name__ == "__main__":
     client = ReceiptsClient()
     client.do_auth()
-    transaction_id = client.list_transactions(10, "2018-11-12T23:00:00Z")
-    receipt_id = client.example_add_receipt_data([["Bangkok Street Platter", 2, "platters", 1600, 320],["Grilled Chicken Satay", 1, "meal", 650, 130],["Pork Belly", 1, "meal", 1300, 260]],transaction_id , 3550, "GBP", "card", 710 )
-    client.read_receipt(receipt_id)
-    client.example_register_webhook("https://example.com/webhook_callback") 
+    transactions = client.list_transactions(10, "2018-05-05T20:00:00Z")
+    #receipt_id = client.example_add_receipt_data([["Bangkok Street Platter", 2, "platters", 1600, 320],["Grilled Chicken Satay", 1, "meal", 650, 130],["Pork Belly", 1, "meal", 1300, 260]],transaction_id , 3550, "GBP", "card", 710 )
+    #client.read_receipt(receipt_id)
+    #client.example_register_webhook("https://example.com/webhook_callback") 
     # The webhook endpoint used should be an HTTP-style server served by your own app server.
+    for i in transactions:
+        if i["merchant"] != None:
+            print(i["merchant"]["name"], i["amount"], i["id"])
+    transaction_id = "tx_00009WJJ1JHofc2YzrDXRh"
+    transaction = client.get_transaction(transaction_id)
+    print(transaction)
+    print(transaction["created"], dateutil.parser.parse(transaction["created"]))
+    seconds = int(dateutil.parser.parse(transaction["created"]).timestamp())
+    service = get_service()
+    matching = get_matching_emails(service, seconds + 86400, seconds - 86400, transaction["merchant"]["name"])
+    print(matching)
+    (items, vat, total) = (get_data(convert_to_plain_text(get_email_by_id(service, matching[0]))))
+    print(items)
+    print(vat)
+    print(total)
+    client.example_add_receipt_data(items, "tx_00009WJJ1JHofc2YzrDXRh", total, 'GBP', 'card', vat)
+
 
     
             
