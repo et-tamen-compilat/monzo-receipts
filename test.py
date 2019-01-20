@@ -34,6 +34,15 @@ def hello():
         url = "https://auth.monzo.com/?client_id=" + client_id + "&redirect_uri=" + u + "&response_type=code&state=" + state
         return render_template("login.html", url=url)
 
+@app.route("/doit/<transaction_id>")
+def hello3(transaction_id):
+    if "id" in session:
+        l = ReceiptsClient(session["access_token"])
+        l.doit(transaction_id)
+        return "Success"
+    else:    
+        return "Authentication failed"
+
 @app.route("/authenticate")
 def hello2():
     print(request.args.get("code"))

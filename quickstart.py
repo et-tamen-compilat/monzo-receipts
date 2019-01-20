@@ -71,9 +71,9 @@ def get_data(data):
             quantity = 1
             final_data.append((desc, quantity, price))   
             total += price
-        elif desc == 'Gift Card (':
-            final_data.append(('Discount Applied', price))
-            total -= price
+        elif 'gift card' in desc.lower() or 'promotion' in desc.lower():
+            final_data.append(('Discount Applied', -abs(price)))
+            total -= abs(price)
     return (final_data, vat, total)
 
 def get_service():
