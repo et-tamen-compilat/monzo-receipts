@@ -104,9 +104,7 @@ def main():
     """
     service = get_service()
     
-    # Call the Gmail API
-    #gbk id rfc822msgid:0100016533703b3a-1f3aebdc-db03-40c4-859c-3014bd1efa51-000000@email.amazonses.com
-    #google play store id 
+    #Test gmail ids
     amazon_id1 = 'rfc822msgid:01020168438850f4-ffad1b13-6154-4f65-8e71-7c18b615503f-000000@eu-west-1.amazonses.com'
     amazon_id2 = 'rfc822msgid:010201677e7bbc72-42a07a16-9e03-476e-80ca-8bb3dda11a86-000000@eu-west-1.amazonses.com'
     amazon_id3 = 'rfc822msgid:01020163186f0a90-7644ce96-1906-4565-9ee6-60115b6c96e3-000000@eu-west-1.amazonses.com'
@@ -119,19 +117,12 @@ def main():
     google_play_id4 = 'rfc822msgid:000000000000c207b805789c8ce7@google.com'
     deliveroo_id1 = 'rfc822msgid:5afc7a1e51293_183fddfc3ec8d4273690@4320d7536864.mail'
     deliveroo_id2 = 'rfc822msgid:5babb9e861414_143fe11e20019049511e@5346a9355ef5.mail'
-    #<<<<<<< HEAD
     query = amazon_id6_giftcard
 
     message_id = get_email_id_by_query(service, query)
     z = get_email_by_id(service, message_id)
     print(get_matching_emails(service, "2019/01/20", "2019/01/01", "Monzo"))
-    #=======
     
-        #print(z)
-    #print(z.keys())
-    #print(z["payload"].keys())
-    #print(z["payload"]["headers"])
-    #print(z["payload"]['parts'][0])
     data = convert_to_plain_text(z)    
     print(data)
     print(get_date(z))

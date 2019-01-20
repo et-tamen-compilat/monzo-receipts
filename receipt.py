@@ -45,11 +45,7 @@ for line_info in line_infos:
         all_words.append([])
         for word in line['words']:
             all_words[index].append(word['text'])
-            #print(word['text'],end='')
-        #print('\n')
         index += 1
 # Display the image and overlay it with the extracted text.
-#plt.figure(figsize=(5, 5))
-#image = Image.open(BytesIO(requests.get(image_url).content))
-#ax = plt.imshow(image, alpha=0.5)
+
 print(all_words)
