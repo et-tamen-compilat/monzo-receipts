@@ -71,6 +71,9 @@ def get_data(data):
             quantity = 1
             final_data.append((desc, quantity, price))   
             total += price
+        elif desc == 'Gift Card (':
+            final_data.append(('Discount Applied', price))
+            total -= price
     return (final_data, vat, total)
 
 def get_service():
@@ -109,6 +112,7 @@ def main():
     amazon_id3 = 'rfc822msgid:01020163186f0a90-7644ce96-1906-4565-9ee6-60115b6c96e3-000000@eu-west-1.amazonses.com'
     amazon_id4 = 'rfc822msgid:0102016622edbdf6-d0e91758-ec90-43a9-bea1-d0e05faeac1e-000000@eu-west-1.amazonses.com'
     amazon_id5 = 'rfc822msgid:0102016030c68d3b-ec689bf9-2fc9-4883-8ffa-206f1f893375-000000@eu-west-1.amazonses.com'
+    amazon_id6_giftcard = 'rfc822msgid:010201630da42e70-7d1fc795-1579-4067-bfa3-86f764a39119-000000@eu-west-1.amazonses.com'
     google_play_id1 = 'rfc822msgid:a685cf0371b7dafc083015faa60953cc0d0ac6fd-10044049-100240651@google.com'
     google_play_id2 = 'rfc822msgid:5f665b9f0fdc8072.1532187432836.100240651.10044049.en-GB.589fc1be1ae4f1e4@google.com'
     google_play_id3 = 'rfc822msgid:5f665b9f0fdc8072.1523093171606.100240651.10044049.en-GB.45840e70707e3b8@google.com'
@@ -116,10 +120,10 @@ def main():
     deliveroo_id1 = 'rfc822msgid:5afc7a1e51293_183fddfc3ec8d4273690@4320d7536864.mail'
     deliveroo_id2 = 'rfc822msgid:5babb9e861414_143fe11e20019049511e@5346a9355ef5.mail'
     #<<<<<<< HEAD
-    query = deliveroo_id2
+    query = amazon_id6_giftcard
 
-    #message_id = get_email_id_by_query(service, query)
-    z = get_email_by_id(service, "16742967640a3464")
+    message_id = get_email_id_by_query(service, query)
+    z = get_email_by_id(service, message_id)
     print(get_matching_emails(service, "2019/01/20", "2019/01/01", "Monzo"))
     #=======
     
